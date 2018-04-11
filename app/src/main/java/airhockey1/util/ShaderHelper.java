@@ -97,7 +97,7 @@ public class ShaderHelper {
 
         final int[] validateStatus = new int[1];
         glGetProgramiv(programObjectId, GL_VALIDATE_STATUS, validateStatus, 0);
-        Log.v(TAG, "Results of validating program:  " + validateStatus[0] + "\nLog:" + glGetProgramInfoLog(programObjectId));\
+        Log.v(TAG, "Results of validating program:  " + validateStatus[0] + "\nLog:" + glGetProgramInfoLog(programObjectId));
 
         return validateStatus[0] != 0;
 

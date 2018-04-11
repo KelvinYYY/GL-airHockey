@@ -9,6 +9,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLSurfaceView.Renderer;
 
+import airhockey1.util.ShaderHelper;
 import airhockey1.util.TextResourceReader;
 
 import static android.opengl.GLES20.glClearColor;
@@ -18,6 +19,7 @@ import static javax.microedition.khronos.opengles.GL10.GL_COLOR_BUFFER_BIT;
 
 public class GLRenderer implements Renderer {
     private final Context context;
+    private int program;
 
     public GLRenderer(Context context) {
         this.context = context;
@@ -29,13 +31,17 @@ public class GLRenderer implements Renderer {
                 .readTextFileFromResource(context, R.raw.fragment_shader);
         String fragmentShaderSource = TextResourceReader
                 .readTextFileFromResource(context, R.raw.vertex_shader);
+
+        int vertexShader = ShaderHelper.compileVertexShader(vertexShaderSource);
+        int fragmentShader = ShaderHelper.compileFragmentShader(fragmentShaderSource);
+
+        program = ShaderHelper.linkProgram(vertexShader, fragmentShader);
+
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         glViewport(0, 0, width, height);
-
-
     }
 
     @Override

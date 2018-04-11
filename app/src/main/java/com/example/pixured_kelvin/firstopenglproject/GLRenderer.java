@@ -14,12 +14,18 @@ import airhockey1.util.TextResourceReader;
 
 import static android.opengl.GLES20.glClearColor;
 import static android.opengl.GLES20.glClear;
+import static android.opengl.GLES20.glGetUniformLocation;
+import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glViewport;
 import static javax.microedition.khronos.opengles.GL10.GL_COLOR_BUFFER_BIT;
 
 public class GLRenderer implements Renderer {
     private final Context context;
     private int program;
+    private static final String U_COLOR = "u_Color";
+    private int uColorLocation;
+    private static final String A_POSITION = "a_Position";
+    private int aPositionLocation;
 
     public GLRenderer(Context context) {
         this.context = context;
@@ -36,6 +42,11 @@ public class GLRenderer implements Renderer {
         int fragmentShader = ShaderHelper.compileFragmentShader(fragmentShaderSource);
 
         program = ShaderHelper.linkProgram(vertexShader, fragmentShader);
+
+        glUseProgram(program);
+
+        uColorLocation = glGetUniformLocation(program, U_COLOR);
+
 
     }
 

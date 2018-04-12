@@ -15,6 +15,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 import airhockey1.util.LoggerConfig;
+import airhockey1.util.MatrixHelper;
 import airhockey1.util.ShaderHelper;
 import airhockey1.util.TextResourceReader;
 
@@ -34,7 +35,11 @@ import static android.opengl.GLES20.glUniformMatrix4fv;
 import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glVertexAttribPointer;
 import static android.opengl.GLES20.glViewport;
+import static android.opengl.Matrix.multiplyMM;
 import static android.opengl.Matrix.orthoM;
+import static android.opengl.Matrix.rotateM;
+import static android.opengl.Matrix.setIdentityM;
+import static android.opengl.Matrix.translateM;
 import static javax.microedition.khronos.opengles.GL10.GL_COLOR_BUFFER_BIT;
 
 public class GLRenderer implements Renderer {
@@ -42,29 +47,31 @@ public class GLRenderer implements Renderer {
     private final float[] projectionMatrix = new float[16];
     private int uMatrixLocation;
 
+    private final float[] modelMatrix = new float[16];
+
     private static final String A_COLOR = "a_Color";
     private int aColorLocation;
     private static final int COLOR_COMPONENT_COUNT = 3;
-    private static final int POSITION_COMPONENT_COUNT = 4;
+    private static final int POSITION_COMPONENT_COUNT = 3;
     private static final int BYTES_PER_FLOAT = 4;
     private static final int STRIDE =
             (POSITION_COMPONENT_COUNT + COLOR_COMPONENT_COUNT) * BYTES_PER_FLOAT;
     float[] tableVerticesWithTriangles = {
 // Triangle Fan
             // Triangle Fan
-            0f, 0f, 0f, 1.5f, 1f, 1f, 1f,
-            -0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f,
-            0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f,
-            0.5f, 0.8f, 0f, 2f, 0.7f, 0.7f, 0.7f,
-            -0.5f, 0.8f, 0f, 2f, 0.7f, 0.7f, 0.7f,
-            -0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f,
+            0f, 0f, 0f, 1f, 1f, 1f,
+            -0.5f, -0.8f, 0f,  0.7f, 0.7f, 0.7f,
+            0.5f, -0.8f, 0f,  0.7f, 0.7f, 0.7f,
+            0.5f, 0.8f, 0f,  0.7f, 0.7f, 0.7f,
+            -0.5f, 0.8f, 0f,  0.7f, 0.7f, 0.7f,
+            -0.5f, -0.8f, 0f,  0.7f, 0.7f, 0.7f,
 // Line 1
-            -0.5f, 0f, 0f, 1.5f, 1f, 0f, 0f,
-            0.5f, 0f, 0f, 1.5f, 1f, 0f, 0f,
+            -0.5f, 0f, 0f,  1f, 0f, 0f,
+            0.5f, 0f, 0f,  1f, 0f, 0f,
 // Line 1
             // Mallets
-            0f, -0.4f, 0f, 1.25f, 0f, 0f, 1f,
-            0f, 0.4f, 0f, 1.75f, 1f, 0f, 0f
+            0f, -0.4f, 0f,  0f, 0f, 1f,
+            0f, 0.4f, 0f, 1f, 0f, 0f
     };
     private final Context context;
     private int program;
@@ -99,6 +106,7 @@ public class GLRenderer implements Renderer {
         }
 
         glUseProgram(program);
+
         aColorLocation = glGetAttribLocation(program, A_COLOR);
 
         aPositionLocation = glGetAttribLocation(program, A_POSITION);
@@ -122,18 +130,31 @@ public class GLRenderer implements Renderer {
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         glViewport(0, 0, width, height);
-        Log.v("surface changed!", "");
+////        Log.v("surface changed!", "");
+////
+//        final float aspectRatio = width > height ?
+//                (float) width / (float) height :
+//                (float) height / (float) width;
+//        if (width > height) {
+//// Landscape
+//            orthoM(projectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, -1f, 1f);
+//        } else {
+//// Portrait or square
+//            orthoM(projectionMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio, -1f, 1f);
+//        }
+        MatrixHelper.perspectiveM(projectionMatrix, 45, (float) width
+                / (float) height, 1f, 20f);
 
-        final float aspectRatio = width > height ?
-                (float) width / (float) height :
-                (float) height / (float) width;
-        if (width > height) {
-// Landscape
-            orthoM(projectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, -1f, 1f);
-        } else {
-// Portrait or square
-            orthoM(projectionMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio, -1f, 1f);
-        }
+//
+        setIdentityM(modelMatrix, 0);
+        translateM(modelMatrix, 0, 0f, 0f, -3f);
+        rotateM(modelMatrix, 0, -60f, 1f, 0f, 0f);
+        final float[] temp = new float[16];
+        multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0);
+        System.arraycopy(temp, 0, projectionMatrix, 0, temp.length);
+//
+
+
 
     }
 

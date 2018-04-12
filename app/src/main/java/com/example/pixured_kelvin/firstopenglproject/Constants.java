@@ -1,0 +1,6 @@
+package com.example.pixured_kelvin.firstopenglproject;
+
+public class Constants {
+
+    public static final int BYTES_PER_FLOAT = 4;
+}

@@ -6,10 +6,17 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import static android.content.ContentValues.TAG;
+import static android.opengl.GLES20.GL_LINEAR;
+import static android.opengl.GLES20.GL_LINEAR_MIPMAP_LINEAR;
 import static android.opengl.GLES20.GL_TEXTURE_2D;
+import static android.opengl.GLES20.GL_TEXTURE_MAG_FILTER;
+import static android.opengl.GLES20.GL_TEXTURE_MIN_FILTER;
 import static android.opengl.GLES20.glBindTexture;
 import static android.opengl.GLES20.glDeleteTextures;
 import static android.opengl.GLES20.glGenTextures;
+import static android.opengl.GLES20.glGenerateMipmap;
+import static android.opengl.GLES20.glTexParameteri;
+import static android.opengl.GLUtils.texImage2D;
 
 public class TextureHelper {
     private static final String TAG = "TextureHelper";
@@ -39,8 +46,25 @@ public class TextureHelper {
             return 0;
         }
 
+        //bound
         glBindTexture(GL_TEXTURE_2D, textureObjectIds[0]);
 
+        //assign filters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        //load
+        texImage2D(GL_TEXTURE_2D, 0, bitmap, 0);
+
+        bitmap.recycle();
+
+        //generate all mipmap
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        //unbound texture, in case we accidentally make further changes to this texture with other texture calls
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        return textureObjectIds[0];
 
     }
 }

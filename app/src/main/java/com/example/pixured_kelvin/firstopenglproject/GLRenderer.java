@@ -64,10 +64,13 @@ public class GLRenderer implements Renderer {
     @Override
     public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
         table = new Table();
         mallet = new Mallet();
+
         textureProgram = new TextureShaderProgram(context);
         colorProgram = new ColorShaderProgram(context);
+
         texture = TextureHelper.loadTexture(context, R.drawable.texture);
     }
 
@@ -88,7 +91,6 @@ public class GLRenderer implements Renderer {
 //        }
         MatrixHelper.perspectiveM(projectionMatrix, 45, (float) width
                 / (float) height, 1f, 20f);
-
 //
         setIdentityM(modelMatrix, 0);
         translateM(modelMatrix, 0, 0f, 0f, -3f);
@@ -97,20 +99,19 @@ public class GLRenderer implements Renderer {
         multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0);
         System.arraycopy(temp, 0, projectionMatrix, 0, temp.length);
 //
-
-
-
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         // Clear the rendering surface.
         glClear(GL_COLOR_BUFFER_BIT);
+
         // Draw the table.
         textureProgram.useProgram();
         textureProgram.setUniforms(projectionMatrix, texture);
         table.bindData(textureProgram);
         table.draw();
+
         // Draw the mallets.
         colorProgram.useProgram();
         colorProgram.setUniforms(projectionMatrix);

@@ -56,6 +56,7 @@ public class TextureHelper {
         //load
         texImage2D(GL_TEXTURE_2D, 0, bitmap, 0);
 
+        //destroy bitmap
         bitmap.recycle();
 
         //generate all mipmap

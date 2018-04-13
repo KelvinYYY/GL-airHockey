@@ -63,16 +63,10 @@ public class ObjectBuilder {
         // Fan around center point. <= is used because we want to generate
         // the point at the starting angle twice to complete the fan.
         for (int i = 0; i <= numPoints; i++) {
-            float angleInRadians =
-                    ((float) i / (float) numPoints)
-                            * ((float) Math.PI * 2f);
-            vertexData[offset++] =
-                    circle.center.x
-                            + circle.radius * (float) Math.cos(angleInRadians);
+            float angleInRadians = ((float) i / (float) numPoints) * ((float) Math.PI * 2f);
+            vertexData[offset++] = circle.center.x + circle.radius * (float) Math.cos(angleInRadians);
             vertexData[offset++] = circle.center.y;
-            vertexData[offset++] =
-                    circle.center.z
-                            + circle.radius * (float) Math.cos(angleInRadians);
+            vertexData[offset++] = circle.center.z + circle.radius * (float) Math.sin(angleInRadians);
         }
     }
 
@@ -83,15 +77,9 @@ public class ObjectBuilder {
         final float yEnd = cylinder.center.y + (cylinder.height / 2f);
 
         for (int i = 0; i <= numPoints; i++) {
-            float angleInRadians =
-                    ((float) i / (float) numPoints)
-                            * ((float) Math.PI * 2f);
-            float xPosition =
-                    cylinder.center.x
-                            + cylinder.radius * (float)Math.cos(angleInRadians);
-            float zPosition =
-                    cylinder.center.z
-                            + cylinder.radius * (float)Math.sin(angleInRadians);
+            float angleInRadians = ((float) i / (float) numPoints) * ((float) Math.PI * 2f);
+            float xPosition = cylinder.center.x + cylinder.radius * (float)Math.cos(angleInRadians);
+            float zPosition = cylinder.center.z + cylinder.radius * (float)Math.sin(angleInRadians);
             vertexData[offset++] = xPosition;
             vertexData[offset++] = yStart;
             vertexData[offset++] = zPosition;

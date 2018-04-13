@@ -17,6 +17,8 @@ public class ShaderProgram {
     // Shader program
     protected final int program;
 
+    protected static final String U_COLOR = "u_Color";
+
     protected ShaderProgram(Context context, int vertexShaderResourceId,
                             int fragmentShaderResourceId) {
         // Compile the shaders and link the program.

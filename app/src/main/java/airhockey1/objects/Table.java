@@ -1,6 +1,7 @@
 package airhockey1.objects;
 
 import airhockey1.data.VertexArray;
+import airhockey1.programs.TextureShaderProgram;
 
 import static android.opengl.GLES20.GL_TRIANGLE_FAN;
 import static android.opengl.GLES20.glDrawArrays;

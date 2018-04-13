@@ -30,8 +30,7 @@ public class TextureShaderProgram extends ShaderProgram {
         uTextureUnitLocation = glGetUniformLocation(program, U_TEXTURE_UNIT);
         // Retrieve attribute locations for the shader program.
         aPositionLocation = glGetAttribLocation(program, A_POSITION);
-        aTextureCoordinatesLocation =
-                glGetAttribLocation(program, A_TEXTURE_COORDINATES);
+        aTextureCoordinatesLocation = glGetAttribLocation(program, A_TEXTURE_COORDINATES);
     }
 
     public void setUniforms(float[] matrix, int textureId) {
@@ -44,5 +43,12 @@ public class TextureShaderProgram extends ShaderProgram {
         // Tell the texture uniform sampler to use this texture in the shader by
         // telling it to read from texture unit 0.
         glUniform1i(uTextureUnitLocation, 0);
+    }
+
+    public int getPositionAttributeLocation() {
+        return aPositionLocation;
+    }
+    public int getTextureCoordinatesAttributeLocation() {
+        return aTextureCoordinatesLocation;
     }
 }

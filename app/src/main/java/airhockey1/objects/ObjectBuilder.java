@@ -9,13 +9,14 @@ import static airhockey1.util.Geometry.*;
 import airhockey1.util.Geometry;
 
 import static android.opengl.GLES20.GL_TRIANGLE_FAN;
+import static android.opengl.GLES20.GL_TRIANGLE_STRIP;
 import static android.opengl.GLES20.glDrawArrays;
 
 public class ObjectBuilder {
     private static final int FLOATS_PER_VERTEX = 3;
     private final float[] vertexData;
     private int offset = 0;
-    private final List<DrawCommand> drawList = new ArrayList<DrawCommand>();
+    private final List<DrawCommand> drawList = new ArrayList<>();
     private ObjectBuilder(int sizeInVertices) {
         vertexData = new float[sizeInVertices * FLOATS_PER_VERTEX];
     }
@@ -87,6 +88,12 @@ public class ObjectBuilder {
             vertexData[offset++] = yEnd;
             vertexData[offset++] = zPosition;
         }
+        drawList.add(new DrawCommand() {
+            @Override
+            public void draw() {
+                glDrawArrays(GL_TRIANGLE_STRIP, startVertex, numVertices);
+            }
+        });
     }
 
     static interface DrawCommand {

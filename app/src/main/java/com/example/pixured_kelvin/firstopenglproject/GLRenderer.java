@@ -92,7 +92,10 @@ public class GLRenderer implements Renderer {
 
         table = new Table();
         mallet = new Mallet(0.08f, 0.15f, 32);
+
         puck = new Puck(0.06f, 0.02f, 32);
+        puckPosition = new Point(0f, puck.height / 2f, 0f);
+        puckVector = new Vector(0f, 0f, 0f);
 
         textureProgram = new TextureShaderProgram(context);
         colorProgram = new ColorShaderProgram(context);
@@ -119,12 +122,37 @@ public class GLRenderer implements Renderer {
 //        }
         MatrixHelper.perspectiveM(projectionMatrix, 45, (float) width
                 / (float) height, 1f, 10f);
-        setLookAtM(viewMatrix, 0, 0f, 1.2f, 2.2f, 0f, 0f, 0f, 0f, 1f, 0f);
+        setLookAtM(viewMatrix,
+                0,
+                0f, 1.2f,
+                2.2f,
+                0f,
+                0f,
+                0f,
+                0f,
+                1f,
+                0f);
 //
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        puckPosition = puckPosition.translate(puckVector);
+        if (puckPosition.x < leftBound + puck.radius
+                || puckPosition.x > rightBound - puck.radius) {
+            puckVector = new Vector(-puckVector.x, puckVector.y, puckVector.z);
+        }
+        if (puckPosition.z < farBound + puck.radius
+                || puckPosition.z > nearBound - puck.radius) {
+            puckVector = new Vector(puckVector.x, puckVector.y, -puckVector.z);
+        }
+// Clamp the puck position.
+        puckPosition = new Point(
+                clamp(puckPosition.x, leftBound + puck.radius, rightBound - puck.radius),
+                puckPosition.y,
+                clamp(puckPosition.z, farBound + puck.radius, nearBound - puck.radius)
+        );
+
         // Clear the rendering surface.
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -133,6 +161,7 @@ public class GLRenderer implements Renderer {
         positionTableInScene();
         textureProgram.useProgram();
         textureProgram.setUniforms(modelViewProjectionMatrix, texture);
+
         table.bindData(textureProgram);
         table.draw();
 
@@ -140,10 +169,10 @@ public class GLRenderer implements Renderer {
         positionObjectInScene(0f, mallet.height / 2f, -0.4f);
         colorProgram.useProgram();
         colorProgram.setUniforms(modelViewProjectionMatrix, 1f, 0f, 0f);
+
         mallet.bindData(colorProgram);
         mallet.draw();
-        positionObjectInScene(blueMalletPosition.x, blueMalletPosition.y,
-                blueMalletPosition.z);
+        positionObjectInScene(blueMalletPosition.x, blueMalletPosition.y, blueMalletPosition.z);
         colorProgram.setUniforms(modelViewProjectionMatrix, 0f, 0f, 1f);
 
         // Note that we don't have to define the object data twice -- we just
@@ -152,10 +181,12 @@ public class GLRenderer implements Renderer {
         mallet.draw();
 
         // Draw the puck.
-        positionObjectInScene(0f, puck.height / 2f, 0f);
+        positionObjectInScene(puckPosition.x, puckPosition.y, puckPosition.z);
         colorProgram.setUniforms(modelViewProjectionMatrix, 0.8f, 0.8f, 1f);
         puck.bindData(colorProgram);
         puck.draw();
+        puckVector = puckVector.scale(0.99f);
+
     }
 
     private void positionTableInScene() {
@@ -199,6 +230,8 @@ public class GLRenderer implements Renderer {
             // representing our table. We'll move the mallet along this plane.
             Point touchedPoint = Geometry.intersectionPoint(ray, plane);
             Log.v("new position", touchedPoint.x + " "  + mallet.height / 2f + " " + touchedPoint.z);
+            previousBlueMalletPosition = blueMalletPosition;
+
             blueMalletPosition = new Point(
                     clamp(touchedPoint.x,
                             leftBound + mallet.radius,
@@ -207,6 +240,13 @@ public class GLRenderer implements Renderer {
                     clamp(touchedPoint.z,
                             0f + mallet.radius,
                             nearBound - mallet.radius));
+
+            float distance = Geometry.vectorBetween(blueMalletPosition, puckPosition).length();
+            if (distance < (puck.radius + mallet.radius)) {
+            // The mallet has struck the puck. Now send the puck flying
+            // based on the mallet velocity.
+                puckVector = Geometry.vectorBetween(previousBlueMalletPosition, blueMalletPosition);
+            }
         }
     }
 

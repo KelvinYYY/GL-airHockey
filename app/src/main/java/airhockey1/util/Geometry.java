@@ -87,6 +87,19 @@ public class Geometry {
                     y * f,
                     z * f);
         }
+        public float length() {
+            return (float)Math.sqrt(
+                    x * x
+                            + y * y
+                            + z * z);
+        }
+        // http://en.wikipedia.org/wiki/Cross_product
+        public Vector crossProduct(Vector other) {
+            return new Vector(
+                    (y * other.z) - (z * other.y),
+                    (z * other.x) - (x * other.z),
+                    (x * other.y) - (y * other.x));
+        }
     }
 
     public static Vector vectorBetween(Point from, Point to) {
@@ -142,4 +155,6 @@ public class Geometry {
         Point intersectionPoint = ray.point.translate(ray.vector.scale(scaleFactor));
         return intersectionPoint;
     }
+
+
 }

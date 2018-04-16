@@ -66,12 +66,21 @@ public class GLRenderer implements Renderer {
     private Mallet mallet;
     private Puck puck;
 
+    private Point puckPosition;
+    private Vector puckVector;
+
     private TextureShaderProgram textureProgram;
     private ColorShaderProgram colorProgram;
     private int texture;
 
     private boolean malletPressed = false;
     private Geometry.Point blueMalletPosition;
+    private Point previousBlueMalletPosition;
+
+    private final float leftBound = -0.5f;
+    private final float rightBound = 0.5f;
+    private final float farBound = -0.8f;
+    private final float nearBound = 0.8f;
 
     public GLRenderer(Context context) {
         this.context = context;
@@ -133,7 +142,8 @@ public class GLRenderer implements Renderer {
         colorProgram.setUniforms(modelViewProjectionMatrix, 1f, 0f, 0f);
         mallet.bindData(colorProgram);
         mallet.draw();
-        positionObjectInScene(0f, mallet.height / 2f, 0.4f);
+        positionObjectInScene(blueMalletPosition.x, blueMalletPosition.y,
+                blueMalletPosition.z);
         colorProgram.setUniforms(modelViewProjectionMatrix, 0f, 0f, 1f);
 
         // Note that we don't have to define the object data twice -- we just
@@ -177,21 +187,26 @@ public class GLRenderer implements Renderer {
         // intersects the mallet's bounding sphere), then set malletPressed =
         // true.
         malletPressed = Geometry.intersects(malletBoundingSphere, ray);
-
-
-
     }
 
     public void handleTouchDrag(float normalizedX, float normalizedY) {
         if (malletPressed) {
+            Log.v("pressed", "pressed");
             Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
-// Define a plane representing our air hockey table.
+            // Define a plane representing our air hockey table.
             Plane plane = new Plane(new Point(0, 0, 0), new Vector(0, 1, 0));
-// Find out where the touched point intersects the plane
-// representing our table. We'll move the mallet along this plane.
+            // Find out where the touched point intersects the plane
+            // representing our table. We'll move the mallet along this plane.
             Point touchedPoint = Geometry.intersectionPoint(ray, plane);
-            blueMalletPosition =
-                    new Point(touchedPoint.x, mallet.height / 2f, touchedPoint.z);
+            Log.v("new position", touchedPoint.x + " "  + mallet.height / 2f + " " + touchedPoint.z);
+            blueMalletPosition = new Point(
+                    clamp(touchedPoint.x,
+                            leftBound + mallet.radius,
+                            rightBound - mallet.radius),
+                    mallet.height / 2f,
+                    clamp(touchedPoint.z,
+                            0f + mallet.radius,
+                            nearBound - mallet.radius));
         }
     }
 
@@ -225,5 +240,9 @@ public class GLRenderer implements Renderer {
         vector[0] /= vector[3];
         vector[1] /= vector[3];
         vector[2] /= vector[3];
+    }
+
+    private float clamp(float value, float min, float max) {
+        return Math.min(max, Math.max(value, min));
     }
 }
